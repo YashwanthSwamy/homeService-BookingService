@@ -9,3 +9,4 @@ class FlaskConfig(object):
 
 class DevelopmentConfig(FlaskConfig):
     SQLALCHEMY_DATABASE_URI = environ.get("DATABASE_URL", "postgresql://postgres:postgres@0.0.0.0:32768/postgres")
+    MESSAGE_QUEUE_URI = environ.get("MESSAGE_QUEUE_URI", "amqp://guest:guest@0.0.0.0:5672")

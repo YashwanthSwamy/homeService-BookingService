@@ -37,20 +37,20 @@ class Database:
         App.set_app(app)
         cls.init_db()
 
-    @classmethod
-    @contextmanager
-    def session_manager(cls):
-        # get the resource
-        try:
-            session = cls.get_session()
-            yield session
-            session.commit()
-            session.flush()
-
-        except Exception as generic_error:
-            print(f"[session-manager]{generic_error}")
-            session.rollback()
-            raise generic_error
+    # @classmethod
+    # @contextmanager
+    # def session_manager(cls):
+    #     # get the resource
+    #     try:
+    #         session = cls.get_session()
+    #         yield session
+    #         session.commit()
+    #         session.flush()
+    #
+    #     except Exception as generic_error:
+    #         print(f"[session-manager]{generic_error}")
+    #         session.rollback()
+    #         raise generic_error
 
     @classmethod
     def init_db(cls) -> SQLAlchemy:
