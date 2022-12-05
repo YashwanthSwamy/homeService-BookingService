@@ -1,7 +1,7 @@
 from typing import Dict
 from multiprocessing import JoinableQueue
 import json
-from ..externalServices.messageQueue.models.publishMessageModel import PublishMessageModel
+from src.externalServices.messageQueue.models.publishMessageModel import PublishMessageModel
 
 
 class EventsHandler:

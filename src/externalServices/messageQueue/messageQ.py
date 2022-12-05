@@ -36,7 +36,7 @@ class MessageQueue:
 
     @classmethod
     def init_app(cls, app, internal_publish_queue: JoinableQueue):
-        from src.services.eventThread import EventsHandler
+        from src.externalServices.messageQueue.services.eventThread import EventsHandler
 
         cls.optimization_trigger_events = JoinableQueue()
         cls.internal_publish_queue = internal_publish_queue
@@ -198,7 +198,7 @@ class MessageQueue:
 
     @classmethod
     def on_message(cls, received_channel, basic_deliver, properties, body):
-        from src.services.eventThread import EventsHandler
+        from src.externalServices.messageQueue.services.eventThread import EventsHandler
 
         try:
             EventsHandler.event_handler(basic_deliver, body)
