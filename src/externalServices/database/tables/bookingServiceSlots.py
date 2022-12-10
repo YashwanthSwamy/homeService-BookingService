@@ -9,10 +9,10 @@ class SlotParameter(object):
     """
     Auxiliary class to handle the high amount of class parameters.
     """
-    user_id: str
+    customer_id: str
     user_name: str
-    start: dt.datetime
-    end: dt.datetime
+    start: str
+    end: str
     booked: bool
 
 
@@ -24,31 +24,72 @@ class Slot(Database.get_db().Model):
         nullable=False,
         primary_key=True
     )
-    UserID = Database.get_db().Column(
+    ServiceProviderID = Database.get_db().Column(
         Database.get_db().String(255),
         nullable=False,
         unique=True
     )
-    UserName = Database.get_db().Column(
+    ServiceProviderName = Database.get_db().Column(
         Database.get_db().String(255),
         nullable=False
     )
     Start = Database.get_db().Column(
-        Database.get_db().Time(),
+        Database.get_db().DateTime(),
         nullable=False)
     End = Database.get_db().Column(
-        Database.get_db().Time(),
+        Database.get_db().DateTime(),
         nullable=False)
     Booked = Database.get_db().Column(
         Database.get_db().Boolean(),
         nullable=False)
 
-    def __init__(self, UserID, UserName, Start, End, Booked=False):
-        self.UserID = UserID
-        self.UserName = UserName
-        self.Start = Start
-        self.End = End
-        self.Booked = Booked
+    def __init__(self, service_provider_id, service_provider_name, start, end, booked):
+        self.ServiceProviderID = service_provider_id
+        self.ServiceProviderName = service_provider_name
+        self.Start = start
+        self.End = end
+        self.Booked = booked
+
+    def _create(self):
+        try:
+            with Database.session_manager() as session:
+                session.add(self)
+        except Exception:
+            print(f"[DB] Failed to create in: {self.__tablename__}")
+
+    @staticmethod
+    def save(service_provider_id, service_provider_name, start, end, booked):
+        customer_info = Slot(service_provider_id, service_provider_name, start, end, booked)
+        customer_info._create()
+
+    @staticmethod
+    def update(id, booked):
+        try:
+            with Database.session_manager() as session:
+                slot = session.query(Slot).filter(
+                    Slot.ID == id).first()
+                slot.Booked = booked
+                session.add(slot)
+                return slot.json()
+        except Exception:
+            print(f"[DB] Failed to update")
+
+    @classmethod
+    def get_slots(cls):
+        with Database.session_manager() as session:
+            slots = session.query(Slot).all()
+            session.expunge_all()
+            return {'Slots': list(x.json() for x in slots)}
+
+    def json(self):
+        return {
+            "ID": self.ID,
+            "ServiceProviderID": self.ServiceProviderID,
+            "ServiceProviderName": self.ServiceProviderName,
+            "Start": self.Start,
+            "End": self.End,
+            "Booked": self.Booked
+        }
 
     @staticmethod
     def init_app():

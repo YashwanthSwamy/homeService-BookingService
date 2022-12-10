@@ -1,6 +1,8 @@
 from typing import Dict
 from multiprocessing import JoinableQueue
 import json
+
+from src.externalServices.database.tables import CustomerInfo
 from src.externalServices.messageQueue.models.publishMessageModel import PublishMessageModel
 
 
@@ -47,9 +49,11 @@ class EventsHandler:
         }
 
     @classmethod
-    def on_customer_created(cls):
-        """
-
-        :return:
-        """
+    def on_customer_created(cls, routing_key, message_in):
         print("customer created message received")
+        print(f"[RQ] charger connected: {routing_key}, {message_in}")
+        customer_id = message_in.get("customerId", "")
+        customer_name = message_in.get("name", "")
+        service_provided = message_in.get("offeredService", "")
+        if service_provided is not None:
+            CustomerInfo.save(customer_id, customer_name, service_provided)

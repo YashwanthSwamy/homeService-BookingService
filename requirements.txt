@@ -7,3 +7,4 @@ flask-marshmallow==0.10.1
 marshmallow==3.5.1
 marshmallow-sqlalchemy==0.17.0
 pika==1.2.0
+flask-socketio==5.3.2

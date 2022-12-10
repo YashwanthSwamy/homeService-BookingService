@@ -4,9 +4,10 @@ from .customerInfoRoute import CustomerInfoRoutes
 
 
 def load_config_routes(app):
-    app.add_url_rule("/api/v1/booking/all-bookings",
+
+    app.add_url_rule("/api/v1/booking/all-bookings/<customer_id>",
                      view_func=BookingsRoutes.as_view("bookings_api"))
     app.add_url_rule("/api/v1/booking/customerInfo",
                      view_func=CustomerInfoRoutes.as_view("customerInfo_api"))
-    app.add_url_rule("/api/v1/booking/slots",
+    app.add_url_rule("/api/v1/booking/slots/<service_provider_id>",
                      view_func=SlotsRoutes.as_view("slots_api"))

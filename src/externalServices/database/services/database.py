@@ -4,6 +4,7 @@ from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from flask import Flask
 from contextlib import contextmanager
+from src.services.decorators import bind_app_context
 
 
 class App:
@@ -37,20 +38,20 @@ class Database:
         App.set_app(app)
         cls.init_db()
 
-    # @classmethod
-    # @contextmanager
-    # def session_manager(cls):
-    #     # get the resource
-    #     try:
-    #         session = cls.get_session()
-    #         yield session
-    #         session.commit()
-    #         session.flush()
-    #
-    #     except Exception as generic_error:
-    #         print(f"[session-manager]{generic_error}")
-    #         session.rollback()
-    #         raise generic_error
+    @classmethod
+    @contextmanager
+    def session_manager(cls):
+        # get the resource
+        try:
+            session = cls.get_session()
+            yield session
+            session.commit()
+            session.flush()
+
+        except Exception as generic_error:
+            print(f"[session-manager]{generic_error}")
+            session.rollback()
+            raise generic_error
 
     @classmethod
     def init_db(cls) -> SQLAlchemy:
@@ -72,7 +73,6 @@ class Database:
     @staticmethod
     def init_tables(db):
         """ This method creates all the tables """
-
         print("[DB] init tables method called")
         db.create_all()
         db.session.commit()
@@ -91,3 +91,17 @@ class Database:
     @classmethod
     def get_engine(cls) -> Engine:
         return cls.get_db().get_engine()
+
+    @classmethod
+    @bind_app_context(app_getter=App.get_app)
+    def get_session(cls) -> scoped_session:
+        """creates a new scoped session which will be maintained per application thread
+        via threading.local() and returns the same session object
+        for more ref:
+        https://docs.sqlalchemy.org/en/14/orm/contextual.html
+        https://docs.sqlalchemy.org/en/14/orm/contextual.html#thread-local-scope"""
+
+        if cls._session is None:
+            session_factory = sessionmaker(bind=cls.get_engine())
+            cls._session = scoped_session(session_factory)
+        return cls._session

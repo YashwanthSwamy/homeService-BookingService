@@ -8,6 +8,7 @@ from .externalServices.messageQueue.messageQ import MessageQueue
 from .externalServices.messageQueue.publisher.PublisherFactory import PublisherFactory
 from . import routes
 from . import services
+from .externalServices import websocket
 
 
 def create_app(config):
@@ -45,6 +46,9 @@ def create_app(config):
     ready.wait()
     ready.clear()
     print("Publisher thread has started")
+
+    # websocket.create_app(app)
+    print("Web socket initialized")
 
     return app
 
