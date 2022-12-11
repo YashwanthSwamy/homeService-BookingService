@@ -75,8 +75,13 @@ class Slot(Database.get_db().Model):
             print(f"[DB] Failed to update")
 
     @classmethod
-    def get_slots(cls):
+    def get_slots(cls, service_provider_id = None):
         with Database.session_manager() as session:
+            if service_provider_id is not None:
+                slots = session.query(Slot).filter(
+                    Slot.ServiceProviderID == service_provider_id).all()
+                session.expunge_all()
+                return {'Slots': list(x.json() for x in slots)}
             slots = session.query(Slot).all()
             session.expunge_all()
             return {'Slots': list(x.json() for x in slots)}

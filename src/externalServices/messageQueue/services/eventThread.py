@@ -3,12 +3,12 @@ from multiprocessing import JoinableQueue
 import json
 
 from src.externalServices.database.tables import CustomerInfo
+from src.externalServices.messageQueue.messageQ import CustomerInfoMessages
 from src.externalServices.messageQueue.models.publishMessageModel import PublishMessageModel
 
 
 class EventsHandler:
     terminate_request = False
-    chargers_connectivity_status_cache = {}
     message_handlers = {}
     internal_publish_queue: JoinableQueue
 
@@ -22,6 +22,7 @@ class EventsHandler:
     @classmethod
     def push_to_internal_queue(cls, exchange: str, routing_key: str, body: Dict):
         try:
+            print("publishing message!!")
             message = PublishMessageModel(exchange, routing_key, body, None)
             cls.internal_publish_queue.put(message)
         except Exception:
@@ -57,3 +58,19 @@ class EventsHandler:
         service_provided = message_in.get("offeredService", "")
         if service_provided is not None:
             CustomerInfo.save(customer_id, customer_name, service_provided)
+
+    @classmethod
+    def send_booking_info(cls, customer_id, service_provider_id, customer_name, service_provider_name):
+        """
+        Sends status of the default profile via rabbit mq
+        """
+        print("send_booking_info")
+        exchange = CustomerInfoMessages["ExchangeName"]
+        routing_key = "event.booking.booked"
+        body = {
+            "CustomerID": customer_id,
+            "ServiceProviderID": service_provider_id,
+            "CustomerName": customer_name,
+            "ServiceProviderName": service_provider_name
+        }
+        cls.push_to_internal_queue(exchange, routing_key, body)

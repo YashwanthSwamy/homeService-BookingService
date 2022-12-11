@@ -13,7 +13,7 @@ from .services.getPikaConnectionParams import get_pika_connection_params
 
 QueueName = "BookingServiceQueue"
 
-CustomerInfo = {
+CustomerInfoMessages = {
     "ExchangeName": "events",
     "ExchangeType": "topic",
     "Topics": [
@@ -106,13 +106,13 @@ class MessageQueue:
         cls.channel_rx.basic_qos(prefetch_count=100, global_qos=False)
         cls.channel_rx.add_on_close_callback(
             cls.on_rx_channel_closed)
-        for element in CustomerInfo["Topics"]:
+        for element in CustomerInfoMessages["Topics"]:
             cls.pub_sub.insert(
                 0,
                 RabbitMQSubscriber(
                     channel,
-                    CustomerInfo["ExchangeName"],
-                    CustomerInfo["ExchangeType"],
+                    CustomerInfoMessages["ExchangeName"],
+                    CustomerInfoMessages["ExchangeType"],
                     QueueName,
                     element,
                     cls.on_message

@@ -3,12 +3,17 @@ from flask import request, jsonify
 
 from ..externalServices.database.tables.bookingServiceSlots import Slot
 from ..externalServices.database.tables.bookingServiceBookings import Bookings
+from ..externalServices.messageQueue.services.eventThread import EventsHandler
 
 
 class SlotsRoutes(MethodView):
     def get(self, service_provider_id):
         print(f"Received get slots {service_provider_id}")
         try:
+            read_value = request.args.get('ServiceProviderID', default=None)
+            if read_value is not None:
+                result = Slot.get_slots(read_value)
+                return jsonify(result), 200
             result = Slot.get_slots()
             return jsonify(result), 200
         except Exception:
@@ -34,6 +39,8 @@ class SlotsRoutes(MethodView):
             if received["Booked"]:
                 Bookings.save(received["CustomerID"], result["ServiceProviderID"], received["CustomerName"],
                               result["ServiceProviderName"], result["Start"], result["End"])
+                EventsHandler.send_booking_info(received["CustomerID"], result["ServiceProviderID"],
+                                                received["CustomerName"], result["ServiceProviderName"])
             return jsonify(message="success"), 200
         except Exception:
             print(f"[Routes] failed to add slots", Exception)

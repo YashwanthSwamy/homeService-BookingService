@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS, cross_origin
 import asyncio
 from multiprocessing import JoinableQueue
 import threading
@@ -16,6 +17,8 @@ def create_app(config):
 
     app = Flask(__name__)
     app.config.from_object(config)
+    cors = CORS(app)
+    app.config['CORS_HEADERS'] = 'Content-Type'
     print("CREATED APP INSTANCE!!\n\n")
     Database.init_app(app)
     print("DATABASE INITIALISED")
