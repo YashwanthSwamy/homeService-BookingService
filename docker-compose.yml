@@ -1,0 +1,12 @@
+version: '3'
+services:
+  bookingService:
+    container_name: bookingService
+    image: booking_service:local
+    build: .
+    ports:
+      - "15000:15000"
+    environment:
+      PORT: 15000
+      MESSAGE_QUEUE_URI: amqp://guest:guest@0.0.0.0:5672
+      DATABASE_URL: postgres://postgres:postgres@0.0.0.0:32768/postgres
