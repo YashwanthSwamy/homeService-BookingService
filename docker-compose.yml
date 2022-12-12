@@ -5,8 +5,8 @@ services:
     image: booking_service:local
     build: .
     ports:
-      - "15000:15000"
+      - "15005:15005"
     environment:
-      PORT: 15000
-      MESSAGE_QUEUE_URI: amqp://guest:guest@0.0.0.0:5672
-      DATABASE_URL: postgres://postgres:postgres@0.0.0.0:32768/postgres
+      PORT: 15005
+      MESSAGE_QUEUE_URI: amqp://guest:guest@rabbitmq
+      DATABASE_URL: postgresql://postgres:postgres@host.docker.internal:32768/postgres
