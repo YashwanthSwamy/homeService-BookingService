@@ -60,9 +60,21 @@ class EventsHandler:
             CustomerInfo.save(customer_id, customer_name, service_provided)
 
     @classmethod
+    def send_slot_info(cls, service_provider_id, service_provider_name):
+        """
+        """
+        print("send_slot_info")
+        exchange = CustomerInfoMessages["ExchangeName"]
+        routing_key = "event.booking.slot"
+        body = {
+            "ServiceProviderID": service_provider_id,
+            "ServiceProviderName": service_provider_name
+        }
+        cls.push_to_internal_queue(exchange, routing_key, body)
+
+    @classmethod
     def send_booking_info(cls, customer_id, service_provider_id, customer_name, service_provider_name):
         """
-        Sends status of the default profile via rabbit mq
         """
         print("send_booking_info")
         exchange = CustomerInfoMessages["ExchangeName"]

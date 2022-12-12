@@ -26,8 +26,7 @@ class Slot(Database.get_db().Model):
     )
     ServiceProviderID = Database.get_db().Column(
         Database.get_db().String(255),
-        nullable=False,
-        unique=True
+        nullable=False
     )
     ServiceProviderName = Database.get_db().Column(
         Database.get_db().String(255),

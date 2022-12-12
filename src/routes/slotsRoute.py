@@ -1,5 +1,6 @@
 from flask.views import MethodView
 from flask import request, jsonify
+from datetime import datetime
 
 from ..externalServices.database.tables.bookingServiceSlots import Slot
 from ..externalServices.database.tables.bookingServiceBookings import Bookings
@@ -26,6 +27,7 @@ class SlotsRoutes(MethodView):
             received = request.json
             Slot.save(service_provider_id, received["ServiceProviderName"], received["Start"],
                       received["End"], received["Booked"])
+            EventsHandler.send_slot_info(service_provider_id, received["ServiceProviderName"])
             return jsonify(message="success"), 200
         except Exception:
             print(f"[Routes] failed to add slots", Exception)
@@ -34,14 +36,18 @@ class SlotsRoutes(MethodView):
     def post(self, service_provider_id):
         print(f"Received update slots {service_provider_id}")
         try:
+            customer_id = service_provider_id
             received = request.json
             result = Slot.update(received["ID"], received["Booked"])
+            print("result", result)
             if received["Booked"]:
-                Bookings.save(received["CustomerID"], result["ServiceProviderID"], received["CustomerName"],
-                              result["ServiceProviderName"], result["Start"], result["End"])
-                EventsHandler.send_booking_info(received["CustomerID"], result["ServiceProviderID"],
+                Bookings.save(customer_id, result["ServiceProviderID"], received["CustomerName"],
+                              result["ServiceProviderName"], str(datetime.isoformat(result["Start"])+"Z"),
+                              str(datetime.isoformat(result["End"]))+"Z")
+
+                EventsHandler.send_booking_info(customer_id, result["ServiceProviderID"],
                                                 received["CustomerName"], result["ServiceProviderName"])
             return jsonify(message="success"), 200
         except Exception:
-            print(f"[Routes] failed to add slots", Exception)
-            return jsonify(error=f"failed to add slots for service provider"), 400
+            print(f"[Routes] failed to update slots", Exception)
+            return jsonify(error=f"failed to update slots for service provider"), 400
